@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ΦPHAEDRA CONSULTANCY</title>
+
+    <!-- Google Font Jost -->
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background: #DAD6D6;
+            font-family: 'Jost', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 1920px;
+            margin: 0 auto;
+            height: 2900px;
+        }
+
+        /* ΦPHAEDRA CONSULTANCY */
+        .title {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 42px;
+            font-weight: 700;
+            font-size: 96px;
+            line-height: 139px;
+            color: #464646;
+        }
+
+        /* Testi posizionati */
+        .text {
+            position: absolute;
+            font-weight: 700;
+            font-size: 24px;
+            line-height: 35px;
+            color: #000000;
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        .text-1 { width: 35%; left: 10%; top: 905px; }
+        .text-2 { width: 35%; right: 6%; top: 1401px; }
+        .text-3 { width: 35%; left: 10%; top: 1828px; }
+        .text-4 { width: 35%; right: 6%; top: 401px; }
+
+        /* Canvas per il modello 3D */
+        canvas {
+            display: block;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: auto;
+            height: auto;
+            z-index: 3;
+        }
+
+        /* Responsive media queries per schermi più piccoli */
+        @media (max-width: 1200px) {
+            .title { font-size: 70px; line-height: 100px; }
+            .text { font-size: 20px; }
+            canvas { transform: translate(-50%, -20%) scale(1.5); }
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 60px; line-height: 80px; }
+            .text { font-size: 18px; }
+            canvas { transform: translate(-50%, -20%) scale(1.2); }
+        }
+
+        @media (max-width: 480px) {
+            .title { font-size: 48px; line-height: 65px; }
+            .text { font-size: 16px; }
+            canvas { transform: translate(-50%, -20%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="title">ΦPHAEDRA CONSULTANCY</div>
+        <div class="text text-1">PROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA</div>
+        <div class="text text-2">PROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA</div>
+        <div class="text text-3">PROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA</div>
+        <div class="text text-4">PROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA PROVAPROVA</div>
+
+        <!-- Canvas per il modello 3D -->
+        <canvas id="modelCanvas"></canvas>
+    </div>
+
+    <!-- Includi Three.js e GLTFLoader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        const canvas = document.getElementById('modelCanvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        camera.position.z = 9;
+
+        // Aggiungi luci
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(1, 1, 1).normalize();
+        scene.add(directionalLight);
+
+        const loader = new THREE.GLTFLoader();
+        let model;
+
+        loader.load('prova.glb', function(gltf) {
+            model = gltf.scene;
+            model.scale.set(25, 25, 25);
+            model.position.y = -8;
+            scene.add(model);
+            render();
+        }, undefined, function(error) {
+            console.error('Errore nel caricamento del modello 3D:', error);
+        });
+
+        function render() {
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+        }
+
+        let maxScroll = 0;
+
+        function calculateMaxScroll() {
+            const body = document.body;
+            const html = document.documentElement;
+            maxScroll = Math.max(body.scrollHeight, body.offsetHeight, 
+                                 html.clientHeight, html.scrollHeight, html.offsetHeight) - window.innerHeight;
+        }
+
+        window.addEventListener('wheel', function(event) {
+            if (!model) return;
+
+            const deltaY = event.deltaY;
+            const scrollPercent = window.pageYOffset / maxScroll;
+
+            model.rotation.y += deltaY * 0.0009;
+        });
+
+        window.onload = calculateMaxScroll;
+        window.onresize = () => {
+            calculateMaxScroll();
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+    </script>
+</body>
+</html>
